@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GitHub Repos Dashboard
+
+A personal dashboard to view and manage your GitHub repositories. Built with Next.js 15, shadcn/ui, and the GitHub REST API.
+
+## Features
+
+- **Repository overview** with search, filter by language/visibility, and sort
+- **Stats cards** showing total repos, stars, forks, and open issues
+- **Repo detail pages** with tabbed navigation:
+  - Overview with recent commits and language breakdown
+  - Issues management (view, create, close/reopen)
+  - Pull requests list
+  - Commit activity chart (52 weeks)
+  - Settings (edit description, topics, visibility, archive, delete)
+- **Create and delete repositories** from the dashboard
+- **Dark/light theme** toggle
+- **Responsive design** for mobile and desktop
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- A GitHub Personal Access Token with `repo` and `delete_repo` scopes
+
+### Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env.local` file:
+   ```bash
+   cp .env.example .env.local
+   ```
+4. Add your GitHub PAT to `.env.local`:
+   ```
+   GITHUB_PAT=ghp_xxxxxxxxxxxxxxxxxxxx
+   ```
+5. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **UI**: shadcn/ui + Tailwind CSS
+- **Icons**: @tabler/icons-react
+- **Charts**: Recharts (via shadcn/ui chart)
+- **API**: GitHub REST API v3
+
+## Project Structure
+
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+app/
+  dashboard/
+    page.tsx              # Repos overview with stats, grid, search/filter
+    settings/page.tsx     # App settings, PAT status, rate limits
+    repos/[owner]/[repo]/
+      page.tsx            # Repo overview (commits, languages)
+      issues/page.tsx     # Issues management
+      pulls/page.tsx      # Pull requests
+      activity/page.tsx   # Commit activity chart
+      settings/page.tsx   # Repo settings, danger zone
+  api/github/             # Route handlers proxying GitHub API
+components/               # Reusable UI components
+lib/
+  github.ts               # GitHub API client
+  language-colors.ts      # Language color mapping
+```
