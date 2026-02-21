@@ -13,6 +13,7 @@ import {
   IconTimeline,
   IconUser,
   IconNotes,
+  IconSparkles,
 } from "@tabler/icons-react";
 
 import {
@@ -30,6 +31,7 @@ import {
 
 const mainNav = [
   { title: "Repositories", url: "/dashboard", icon: IconDashboard },
+  { title: "Discover", url: "/dashboard/discover", icon: IconSparkles },
   { title: "Starred", url: "/dashboard/starred", icon: IconStar },
   { title: "Notifications", url: "/dashboard/notifications", icon: IconBell },
   { title: "Activity", url: "/dashboard/activity", icon: IconTimeline },

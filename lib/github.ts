@@ -798,6 +798,33 @@ export async function searchTopics(
   );
 }
 
+// ---------- Star / Unstar ----------
+
+export async function starRepo(owner: string, repo: string): Promise<void> {
+  return githubFetch<void>(`/user/starred/${owner}/${repo}`, {
+    method: "PUT",
+    headers: { "Content-Length": "0" },
+  });
+}
+
+export async function unstarRepo(owner: string, repo: string): Promise<void> {
+  return githubFetch<void>(`/user/starred/${owner}/${repo}`, {
+    method: "DELETE",
+  });
+}
+
+export async function isRepoStarred(owner: string, repo: string): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `https://api.github.com/user/starred/${owner}/${repo}`,
+      { headers: getHeaders() }
+    );
+    return res.status === 204;
+  } catch {
+    return false;
+  }
+}
+
 export interface TrendingRepo {
   full_name: string;
   description: string | null;
