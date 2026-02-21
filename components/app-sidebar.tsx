@@ -38,7 +38,7 @@ const mainNav = [
 ];
 
 const toolsNav = [
-  { title: "Code Search", url: "/dashboard/search", icon: IconSearch },
+  { title: "Search GitHub", url: "/dashboard/search", icon: IconSearch },
   { title: "Gists", url: "/dashboard/gists", icon: IconCode },
   { title: "Profile", url: "/dashboard/profile", icon: IconUser },
   { title: "Export", url: "/dashboard/export", icon: IconNotes },

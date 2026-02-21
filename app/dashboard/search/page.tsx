@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import {
   IconSearch,
   IconFile,
@@ -191,7 +192,7 @@ export default function SearchPage() {
       {/* Header */}
       <div className="flex items-center gap-2">
         <IconSearch className="h-5 w-5 text-primary" />
-        <h1 className="text-xl font-bold">GitHub Search</h1>
+        <h1 className="text-xl font-bold">Search GitHub</h1>
       </div>
 
       {/* Search Type Tabs */}
@@ -354,65 +355,73 @@ export default function SearchPage() {
               {(state.results as Array<{
                 id: number; full_name: string; description: string | null;
                 html_url: string; language: string | null; stargazers_count: number;
-                forks_count: number; topics: string[]; owner: { avatar_url: string };
-                private: boolean; updated_at: string;
+                forks_count: number; topics: string[]; owner: { login: string; avatar_url: string };
+                private: boolean; updated_at: string; name: string;
               }>).map((repo) => (
-                <a
-                  key={repo.id}
-                  href={repo.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
-                >
-                  <Card className="hover:border-primary/50 hover:bg-accent/50 transition-colors">
-                    <CardContent className="pt-4">
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-8 w-8 shrink-0">
-                          <AvatarImage src={repo.owner.avatar_url} />
-                          <AvatarFallback>{repo.full_name[0]}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm text-primary">{repo.full_name}</span>
-                            <Badge variant={repo.private ? "secondary" : "outline"} className="text-[10px]">
-                              {repo.private ? "Private" : "Public"}
-                            </Badge>
-                          </div>
-                          {repo.description && (
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                              {repo.description}
-                            </p>
-                          )}
-                          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
-                            {repo.language && (
-                              <span className="flex items-center gap-1">
-                                <IconCircleFilled className="h-2.5 w-2.5" style={{ color: getLanguageColor(repo.language) }} />
-                                {repo.language}
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1">
-                              <IconStar className="h-3 w-3" />
-                              {repo.stargazers_count.toLocaleString()}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <IconGitFork className="h-3 w-3" />
-                              {repo.forks_count.toLocaleString()}
-                            </span>
-                            <span>Updated {new Date(repo.updated_at).toLocaleDateString()}</span>
-                          </div>
-                          {repo.topics?.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {repo.topics.slice(0, 5).map((t) => (
-                                <Badge key={t} variant="secondary" className="text-[10px] px-1.5 py-0">{t}</Badge>
-                              ))}
+                <div key={repo.id} className="relative">
+                  <Link
+                    href={`/dashboard/repos/${repo.owner.login}/${repo.name}`}
+                    className="block"
+                  >
+                    <Card className="hover:border-primary/50 hover:bg-accent/50 transition-colors">
+                      <CardContent className="pt-4">
+                        <div className="flex items-start gap-3">
+                          <Avatar className="h-8 w-8 shrink-0">
+                            <AvatarImage src={repo.owner.avatar_url} />
+                            <AvatarFallback>{repo.full_name[0]}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm text-primary">{repo.full_name}</span>
+                              <Badge variant={repo.private ? "secondary" : "outline"} className="text-[10px]">
+                                {repo.private ? "Private" : "Public"}
+                              </Badge>
                             </div>
-                          )}
+                            {repo.description && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {repo.description}
+                              </p>
+                            )}
+                            <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
+                              {repo.language && (
+                                <span className="flex items-center gap-1">
+                                  <IconCircleFilled className="h-2.5 w-2.5" style={{ color: getLanguageColor(repo.language) }} />
+                                  {repo.language}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <IconStar className="h-3 w-3" />
+                                {repo.stargazers_count.toLocaleString()}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <IconGitFork className="h-3 w-3" />
+                                {repo.forks_count.toLocaleString()}
+                              </span>
+                              <span>Updated {new Date(repo.updated_at).toLocaleDateString()}</span>
+                            </div>
+                            {repo.topics?.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {repo.topics.slice(0, 5).map((t) => (
+                                  <Badge key={t} variant="secondary" className="text-[10px] px-1.5 py-0">{t}</Badge>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <a
+                            href={repo.html_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 z-10"
+                            onClick={(e) => e.stopPropagation()}
+                            title="Open on GitHub"
+                          >
+                            <IconExternalLink className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                          </a>
                         </div>
-                        <IconExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </a>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </div>
               ))}
             </div>
           )}
