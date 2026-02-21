@@ -6,6 +6,13 @@ import {
   IconDashboard,
   IconSettings,
   IconBrandGithub,
+  IconStar,
+  IconBell,
+  IconSearch,
+  IconCode,
+  IconTimeline,
+  IconUser,
+  IconNotes,
 } from "@tabler/icons-react";
 
 import {
@@ -21,21 +28,28 @@ import {
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
 
-const navItems = [
-  {
-    title: "Repositories",
-    url: "/dashboard",
-    icon: IconDashboard,
-  },
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: IconSettings,
-  },
+const mainNav = [
+  { title: "Repositories", url: "/dashboard", icon: IconDashboard },
+  { title: "Starred", url: "/dashboard/starred", icon: IconStar },
+  { title: "Notifications", url: "/dashboard/notifications", icon: IconBell },
+  { title: "Activity", url: "/dashboard/activity", icon: IconTimeline },
+];
+
+const toolsNav = [
+  { title: "Code Search", url: "/dashboard/search", icon: IconSearch },
+  { title: "Gists", url: "/dashboard/gists", icon: IconCode },
+  { title: "Profile", url: "/dashboard/profile", icon: IconUser },
+  { title: "Export", url: "/dashboard/export", icon: IconNotes },
+  { title: "Settings", url: "/dashboard/settings", icon: IconSettings },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
+
+  function isActive(url: string) {
+    if (url === "/dashboard") return pathname === "/dashboard";
+    return pathname.startsWith(url);
+  }
 
   return (
     <Sidebar>
@@ -63,19 +77,30 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
+              {mainNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={
-                      item.url === "/dashboard"
-                        ? pathname === "/dashboard"
-                        : pathname.startsWith(item.url)
-                    }
-                  >
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link href={item.url}>
+                      <item.icon className="size-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Tools</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {toolsNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <Link href={item.url}>
                       <item.icon className="size-4" />
                       <span>{item.title}</span>

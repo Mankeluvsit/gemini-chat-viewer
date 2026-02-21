@@ -4,7 +4,9 @@ import { StatsCards } from "@/components/stats-cards";
 import { RepoGrid } from "@/components/repo-grid";
 import { SearchFilterBar } from "@/components/search-filter-bar";
 import { CreateRepoDialog } from "@/components/create-repo-dialog";
+import { LanguageChart } from "@/components/language-chart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface DashboardPageProps {
   searchParams: Promise<{
@@ -50,6 +52,14 @@ async function DashboardContent({
     ...new Set(allRepos.map((r) => r.language).filter(Boolean)),
   ] as string[];
 
+  // Aggregate language counts for chart
+  const langCounts: Record<string, number> = {};
+  allRepos.forEach((r) => {
+    if (r.language) {
+      langCounts[r.language] = (langCounts[r.language] || 0) + 1;
+    }
+  });
+
   // Apply filters
   let filtered = allRepos;
 
@@ -83,11 +93,21 @@ async function DashboardContent({
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
   }
-  // default sort is "updated" which is the API default
 
   return (
     <div className="flex flex-col gap-6">
       <StatsCards repos={allRepos} />
+
+      {/* Language Distribution */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Language Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <LanguageChart languages={langCounts} />
+        </CardContent>
+      </Card>
+
       <div className="flex items-center justify-between gap-4">
         <div className="flex-1">
           <SearchFilterBar languages={languages} />

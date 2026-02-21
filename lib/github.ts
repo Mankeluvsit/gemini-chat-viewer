@@ -371,3 +371,403 @@ export async function getReadme(
     return null;
   }
 }
+
+// ---------- Workflow Runs (GitHub Actions) ----------
+
+export interface WorkflowRun {
+  id: number;
+  name: string;
+  head_branch: string;
+  status: string;
+  conclusion: string | null;
+  html_url: string;
+  created_at: string;
+  updated_at: string;
+  run_number: number;
+  event: string;
+}
+
+export async function getWorkflowRuns(
+  owner: string,
+  repo: string,
+  perPage = 10
+): Promise<{ total_count: number; workflow_runs: WorkflowRun[] }> {
+  return githubFetch<{ total_count: number; workflow_runs: WorkflowRun[] }>(
+    `/repos/${owner}/${repo}/actions/runs?per_page=${perPage}`
+  );
+}
+
+// ---------- Notifications ----------
+
+export interface GitHubNotification {
+  id: string;
+  unread: boolean;
+  reason: string;
+  updated_at: string;
+  subject: {
+    title: string;
+    url: string;
+    type: string;
+  };
+  repository: {
+    full_name: string;
+    html_url: string;
+  };
+}
+
+export async function getNotifications(
+  all = false
+): Promise<GitHubNotification[]> {
+  return githubFetch<GitHubNotification[]>(
+    `/notifications?all=${all}&per_page=50`
+  );
+}
+
+export async function markNotificationRead(id: string): Promise<void> {
+  return githubFetch<void>(`/notifications/threads/${id}`, {
+    method: "PATCH",
+  });
+}
+
+// ---------- Starred Repos ----------
+
+export async function getStarredRepos(
+  page = 1,
+  perPage = 30
+): Promise<GitHubRepo[]> {
+  return githubFetch<GitHubRepo[]>(
+    `/user/starred?per_page=${perPage}&page=${page}&sort=updated`
+  );
+}
+
+// ---------- User Events (Activity Timeline) ----------
+
+export interface GitHubEvent {
+  id: string;
+  type: string;
+  actor: {
+    login: string;
+    avatar_url: string;
+  };
+  repo: {
+    name: string;
+    url: string;
+  };
+  payload: Record<string, unknown>;
+  created_at: string;
+}
+
+export async function getUserEvents(
+  username: string,
+  page = 1,
+  perPage = 30
+): Promise<GitHubEvent[]> {
+  return githubFetch<GitHubEvent[]>(
+    `/users/${username}/events?per_page=${perPage}&page=${page}`
+  );
+}
+
+// ---------- User Profile ----------
+
+export interface GitHubUser {
+  login: string;
+  name: string | null;
+  avatar_url: string;
+  html_url: string;
+  bio: string | null;
+  company: string | null;
+  location: string | null;
+  blog: string | null;
+  public_repos: number;
+  public_gists: number;
+  followers: number;
+  following: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getUser(): Promise<GitHubUser> {
+  return githubFetch<GitHubUser>("/user");
+}
+
+// ---------- Gists ----------
+
+export interface GitHubGist {
+  id: string;
+  description: string | null;
+  html_url: string;
+  public: boolean;
+  files: Record<string, { filename: string; language: string | null; size: number }>;
+  created_at: string;
+  updated_at: string;
+  comments: number;
+}
+
+export async function getGists(
+  page = 1,
+  perPage = 30
+): Promise<GitHubGist[]> {
+  return githubFetch<GitHubGist[]>(
+    `/gists?per_page=${perPage}&page=${page}`
+  );
+}
+
+export async function createGist(data: {
+  description?: string;
+  public?: boolean;
+  files: Record<string, { content: string }>;
+}): Promise<GitHubGist> {
+  return githubFetch<GitHubGist>("/gists", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteGist(id: string): Promise<void> {
+  return githubFetch<void>(`/gists/${id}`, { method: "DELETE" });
+}
+
+// ---------- Releases ----------
+
+export interface GitHubRelease {
+  id: number;
+  tag_name: string;
+  name: string | null;
+  body: string | null;
+  draft: boolean;
+  prerelease: boolean;
+  html_url: string;
+  created_at: string;
+  published_at: string;
+  author: {
+    login: string;
+    avatar_url: string;
+  };
+  assets: {
+    name: string;
+    size: number;
+    download_count: number;
+    browser_download_url: string;
+  }[];
+}
+
+export async function getReleases(
+  owner: string,
+  repo: string,
+  perPage = 20
+): Promise<GitHubRelease[]> {
+  return githubFetch<GitHubRelease[]>(
+    `/repos/${owner}/${repo}/releases?per_page=${perPage}`
+  );
+}
+
+export async function createRelease(
+  owner: string,
+  repo: string,
+  data: {
+    tag_name: string;
+    name?: string;
+    body?: string;
+    draft?: boolean;
+    prerelease?: boolean;
+  }
+): Promise<GitHubRelease> {
+  return githubFetch<GitHubRelease>(`/repos/${owner}/${repo}/releases`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+// ---------- Branches ----------
+
+export interface GitHubBranch {
+  name: string;
+  commit: {
+    sha: string;
+    url: string;
+  };
+  protected: boolean;
+}
+
+export async function getBranches(
+  owner: string,
+  repo: string,
+  perPage = 100
+): Promise<GitHubBranch[]> {
+  return githubFetch<GitHubBranch[]>(
+    `/repos/${owner}/${repo}/branches?per_page=${perPage}`
+  );
+}
+
+export async function deleteBranch(
+  owner: string,
+  repo: string,
+  branch: string
+): Promise<void> {
+  return githubFetch<void>(
+    `/repos/${owner}/${repo}/git/refs/heads/${branch}`,
+    { method: "DELETE" }
+  );
+}
+
+// ---------- Collaborators ----------
+
+export interface GitHubCollaborator {
+  login: string;
+  avatar_url: string;
+  html_url: string;
+  permissions: {
+    admin: boolean;
+    maintain: boolean;
+    push: boolean;
+    triage: boolean;
+    pull: boolean;
+  };
+  role_name: string;
+}
+
+export async function getCollaborators(
+  owner: string,
+  repo: string
+): Promise<GitHubCollaborator[]> {
+  return githubFetch<GitHubCollaborator[]>(
+    `/repos/${owner}/${repo}/collaborators`
+  );
+}
+
+export async function addCollaborator(
+  owner: string,
+  repo: string,
+  username: string,
+  permission = "push"
+): Promise<void> {
+  return githubFetch<void>(
+    `/repos/${owner}/${repo}/collaborators/${username}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ permission }),
+    }
+  );
+}
+
+export async function removeCollaborator(
+  owner: string,
+  repo: string,
+  username: string
+): Promise<void> {
+  return githubFetch<void>(
+    `/repos/${owner}/${repo}/collaborators/${username}`,
+    { method: "DELETE" }
+  );
+}
+
+// ---------- Code Search ----------
+
+export interface CodeSearchResult {
+  total_count: number;
+  items: {
+    name: string;
+    path: string;
+    sha: string;
+    html_url: string;
+    repository: {
+      full_name: string;
+    };
+    text_matches?: {
+      fragment: string;
+    }[];
+  }[];
+}
+
+export async function searchCode(
+  query: string,
+  username: string,
+  page = 1,
+  perPage = 20
+): Promise<CodeSearchResult> {
+  const q = encodeURIComponent(`${query} user:${username}`);
+  return githubFetch<CodeSearchResult>(
+    `/search/code?q=${q}&per_page=${perPage}&page=${page}`,
+    {
+      headers: { Accept: "application/vnd.github.text-match+json" },
+    }
+  );
+}
+
+// ---------- Vulnerability Alerts ----------
+
+export interface DependabotAlert {
+  number: number;
+  state: string;
+  security_advisory: {
+    summary: string;
+    severity: string;
+    description: string;
+  };
+  security_vulnerability: {
+    package: {
+      name: string;
+      ecosystem: string;
+    };
+    severity: string;
+    vulnerable_version_range: string;
+  };
+  html_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getDependabotAlerts(
+  owner: string,
+  repo: string,
+  state = "open"
+): Promise<DependabotAlert[]> {
+  try {
+    return await githubFetch<DependabotAlert[]>(
+      `/repos/${owner}/${repo}/dependabot/alerts?state=${state}&per_page=20`
+    );
+  } catch {
+    return [];
+  }
+}
+
+// ---------- Webhooks ----------
+
+export interface GitHubWebhook {
+  id: number;
+  name: string;
+  active: boolean;
+  events: string[];
+  config: {
+    url: string;
+    content_type: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getWebhooks(
+  owner: string,
+  repo: string
+): Promise<GitHubWebhook[]> {
+  try {
+    return await githubFetch<GitHubWebhook[]>(
+      `/repos/${owner}/${repo}/hooks`
+    );
+  } catch {
+    return [];
+  }
+}
+
+export async function deleteWebhook(
+  owner: string,
+  repo: string,
+  hookId: number
+): Promise<void> {
+  return githubFetch<void>(`/repos/${owner}/${repo}/hooks/${hookId}`, {
+    method: "DELETE",
+  });
+}

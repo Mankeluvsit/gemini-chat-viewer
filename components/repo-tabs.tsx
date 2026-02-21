@@ -13,7 +13,10 @@ const tabs = [
   { label: "Overview", path: "" },
   { label: "Issues", path: "/issues" },
   { label: "Pull Requests", path: "/pulls" },
+  { label: "Branches", path: "/branches" },
+  { label: "Releases", path: "/releases" },
   { label: "Activity", path: "/activity" },
+  { label: "Collaborators", path: "/collaborators" },
   { label: "Settings", path: "/settings" },
 ];
 
