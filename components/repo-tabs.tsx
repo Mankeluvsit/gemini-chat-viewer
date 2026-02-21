@@ -11,6 +11,7 @@ interface RepoTabsProps {
 
 const tabs = [
   { label: "Overview", path: "" },
+  { label: "Files", path: "/files" },
   { label: "Issues", path: "/issues" },
   { label: "Pull Requests", path: "/pulls" },
   { label: "Branches", path: "/branches" },

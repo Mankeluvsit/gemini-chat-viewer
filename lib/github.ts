@@ -771,3 +771,117 @@ export async function deleteWebhook(
     method: "DELETE",
   });
 }
+
+// ---------- File Tree & Contents ----------
+
+export interface GitHubTreeItem {
+  path: string;
+  mode: string;
+  type: "blob" | "tree";
+  sha: string;
+  size?: number;
+  url: string;
+}
+
+export interface GitHubTree {
+  sha: string;
+  tree: GitHubTreeItem[];
+  truncated: boolean;
+}
+
+export async function getRepoTree(
+  owner: string,
+  repo: string,
+  branch = "HEAD",
+  recursive = true
+): Promise<GitHubTree> {
+  const suffix = recursive ? "?recursive=1" : "";
+  return githubFetch<GitHubTree>(
+    `/repos/${owner}/${repo}/git/trees/${branch}${suffix}`
+  );
+}
+
+export interface GitHubFileContent {
+  name: string;
+  path: string;
+  sha: string;
+  size: number;
+  type: string;
+  content: string;
+  encoding: string;
+  html_url: string;
+  download_url: string | null;
+}
+
+export async function getFileContent(
+  owner: string,
+  repo: string,
+  path: string,
+  ref?: string
+): Promise<GitHubFileContent> {
+  const query = ref ? `?ref=${encodeURIComponent(ref)}` : "";
+  return githubFetch<GitHubFileContent>(
+    `/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}${query}`
+  );
+}
+
+export async function updateFileContent(
+  owner: string,
+  repo: string,
+  path: string,
+  data: {
+    message: string;
+    content: string; // base64 encoded
+    sha: string;
+    branch?: string;
+  }
+): Promise<{ content: GitHubFileContent; commit: { sha: string; html_url: string } }> {
+  return githubFetch<{ content: GitHubFileContent; commit: { sha: string; html_url: string } }>(
+    `/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }
+  );
+}
+
+export async function createFileContent(
+  owner: string,
+  repo: string,
+  path: string,
+  data: {
+    message: string;
+    content: string; // base64 encoded
+    branch?: string;
+  }
+): Promise<{ content: GitHubFileContent; commit: { sha: string; html_url: string } }> {
+  return githubFetch<{ content: GitHubFileContent; commit: { sha: string; html_url: string } }>(
+    `/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }
+  );
+}
+
+export async function deleteFileContent(
+  owner: string,
+  repo: string,
+  path: string,
+  data: {
+    message: string;
+    sha: string;
+    branch?: string;
+  }
+): Promise<void> {
+  return githubFetch<void>(
+    `/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`,
+    {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }
+  );
+}
