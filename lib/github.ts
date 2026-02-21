@@ -697,6 +697,118 @@ export async function searchCode(
   );
 }
 
+// ---------- Advanced Search ----------
+
+export interface RepoSearchResult {
+  total_count: number;
+  items: (GitHubRepo & {
+    score: number;
+  })[];
+}
+
+export async function searchRepos(
+  query: string,
+  sort?: string,
+  order?: string,
+  page = 1,
+  perPage = 20
+): Promise<RepoSearchResult> {
+  let url = `/search/repositories?q=${encodeURIComponent(query)}&per_page=${perPage}&page=${page}`;
+  if (sort) url += `&sort=${sort}`;
+  if (order) url += `&order=${order}`;
+  return githubFetch<RepoSearchResult>(url);
+}
+
+export interface IssueSearchResult {
+  total_count: number;
+  items: {
+    id: number;
+    number: number;
+    title: string;
+    body: string | null;
+    state: string;
+    html_url: string;
+    user: { login: string; avatar_url: string };
+    labels: { name: string; color: string }[];
+    comments: number;
+    created_at: string;
+    repository_url: string;
+    pull_request?: { url: string };
+  }[];
+}
+
+export async function searchIssues(
+  query: string,
+  sort?: string,
+  order?: string,
+  page = 1,
+  perPage = 20
+): Promise<IssueSearchResult> {
+  let url = `/search/issues?q=${encodeURIComponent(query)}&per_page=${perPage}&page=${page}`;
+  if (sort) url += `&sort=${sort}`;
+  if (order) url += `&order=${order}`;
+  return githubFetch<IssueSearchResult>(url);
+}
+
+export interface UserSearchResult {
+  total_count: number;
+  items: {
+    login: string;
+    avatar_url: string;
+    html_url: string;
+    type: string;
+    score: number;
+  }[];
+}
+
+export async function searchUsers(
+  query: string,
+  page = 1,
+  perPage = 20
+): Promise<UserSearchResult> {
+  return githubFetch<UserSearchResult>(
+    `/search/users?q=${encodeURIComponent(query)}&per_page=${perPage}&page=${page}`
+  );
+}
+
+export interface TopicSearchResult {
+  total_count: number;
+  items: {
+    name: string;
+    display_name: string;
+    short_description: string;
+    created_by: string;
+    created_at: string;
+    featured: boolean;
+    curated: boolean;
+    score: number;
+  }[];
+}
+
+export async function searchTopics(
+  query: string,
+  page = 1,
+  perPage = 20
+): Promise<TopicSearchResult> {
+  return githubFetch<TopicSearchResult>(
+    `/search/topics?q=${encodeURIComponent(query)}&per_page=${perPage}&page=${page}`,
+    {
+      headers: { Accept: "application/vnd.github.mercy-preview+json" },
+    }
+  );
+}
+
+export interface TrendingRepo {
+  full_name: string;
+  description: string | null;
+  html_url: string;
+  language: string | null;
+  stargazers_count: number;
+  forks_count: number;
+  topics: string[];
+  owner: { login: string; avatar_url: string };
+}
+
 // ---------- Vulnerability Alerts ----------
 
 export interface DependabotAlert {

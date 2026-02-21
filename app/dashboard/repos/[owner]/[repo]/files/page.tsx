@@ -11,6 +11,8 @@ import {
   IconArrowLeft,
   IconDeviceFloppy,
   IconChevronRight,
+  IconCode,
+  IconMarkdown,
 } from "@tabler/icons-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -179,6 +181,7 @@ export default function FilesPage() {
   const [loadingFile, setLoadingFile] = useState(false);
   const [saving, setSaving] = useState(false);
   const [commitMessage, setCommitMessage] = useState("");
+  const [editorMode, setEditorMode] = useState<"wysiwyg" | "text">("wysiwyg");
 
   const hasChanges = fileContent !== editedContent;
 
@@ -343,6 +346,26 @@ export default function FilesPage() {
                     </Badge>
                   )}
                 </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    variant={editorMode === "wysiwyg" ? "secondary" : "ghost"}
+                    size="icon"
+                    className="h-7 w-7"
+                    title="WYSIWYG Editor"
+                    onClick={() => setEditorMode("wysiwyg")}
+                  >
+                    <IconMarkdown className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={editorMode === "text" ? "secondary" : "ghost"}
+                    size="icon"
+                    className="h-7 w-7"
+                    title="Plain Text Editor"
+                    onClick={() => setEditorMode("text")}
+                  >
+                    <IconCode className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col gap-3 overflow-hidden">
@@ -352,7 +375,7 @@ export default function FilesPage() {
                 <>
                   {/* Editor area */}
                   <div className="flex-1 overflow-auto rounded border" data-color-mode="dark">
-                    {isMarkdown(selectedFile.path) ? (
+                    {editorMode === "wysiwyg" && (isMarkdown(selectedFile.path) || isTextFile(selectedFile.path)) ? (
                       <MDEditor
                         value={editedContent}
                         onChange={(val) => setEditedContent(val || "")}
